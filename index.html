@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>Embedded TinyML | 256KB RAM Smartwatch</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript>
+		<link rel="stylesheet" href="assets/css/noscript.css" />
+	</noscript>
+</head>
+
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper" class="divided">
+
+		<!-- Banner -->
+		<section
+			class="banner style1 orient-left content-align-left image-position-right fullscreen onload-image-fade-in onload-content-fade-right">
+			<div class="content">
+				<h1>Embedded TinyML on 256KB RAM Smartwatch</h1>
+				<p>
+					Real-time <strong>Human Activity Recognition (HAR)</strong> deployed on the
+					<strong>Bangle.js 2</strong> smartwatch under strict memory constraints (<strong>256KB
+						RAM</strong>).
+					I implemented an end-to-end TinyML pipeline for
+					<strong>basketball activity recognition (HANG Time-HAR)</strong> using wrist accelerometer data,
+					and optimized models for edge inference using <strong>TensorFlow Lite</strong>.
+				</p>
+
+				<ul class="actions stacked">
+
+					<li>
+						<a href="https://github.com/sajukhakurel074/Memory-constraint-Smart-Watch" target="_blank"
+							class="button primary">
+							GitHub Repository
+						</a>
+					</li>
+
+					<li>
+						<a href="pep_report.pdf" target="_blank" class="button">
+							View Full Project Report
+						</a>
+					</li>
+
+				</ul>
+			</div>
+
+			<div class="image">
+				<!-- Replace with your own cover image (watch / accelerometer / TinyML visual) -->
+				<img src="images/tinyml_watch_cover.jpg" alt="Embedded TinyML smartwatch cover" />
+			</div>
+		</section>
+
+		<!-- Project Snapshot -->
+		<section class="spotlight style1 orient-right content-align-left image-position-center onscroll-image-fade-in"
+			id="first">
+			<div class="content">
+				<h2>Project Snapshot</h2>
+				<p>
+					The goal was to run deep-learning-based activity recognition locally on a smartwatch without cloud
+					dependency. This required designing models and preprocessing that fit within tight RAM/Flash budgets
+					while keeping inference responsive for real-time use.
+				</p>
+
+				<ul>
+					<li><strong>Device:</strong> Bangle.js 2 (memory-constrained wearable)</li>
+					<li><strong>Sensing:</strong> 3-axis wrist accelerometer (time-series)</li>
+					<li><strong>Task:</strong> Basketball activity classification (multi-class)</li>
+					<li><strong>Deployment:</strong> TensorFlow Lite + post-training quantization</li>
+				</ul>
+
+				<div class="box">
+					<strong>Focus:</strong> Embedded AI trade-offs — accuracy vs. memory footprint vs. latency
+				</div>
+			</div>
+
+			<div class="image">
+				<!-- Optional: dataset/experiment illustration -->
+				<img src="images/tinyml_pipeline.jpg" alt="TinyML pipeline illustration" />
+			</div>
+		</section>
+
+		<!-- Embedded Pipeline -->
+		<section class="spotlight style1 orient-left content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Edge Pipeline (Memory-Aware)</h2>
+				<p>
+					I built a memory-efficient pipeline tailored for microcontroller-class devices: cleaning raw sensor
+					streams, generating compact fixed-length windows, and ensuring features and labels stay consistent
+					after resampling.
+				</p>
+
+				<ul>
+					<li><strong>Windowing:</strong> fixed 2-second windows with overlap for real-time responsiveness
+					</li>
+					<li><strong>Downsampling:</strong> reduced sample rate to lower compute + memory cost</li>
+					<li><strong>Normalization:</strong> scaled inputs for stable training and inference</li>
+					<li><strong>Class balancing:</strong> capped sequences per class to control dataset size</li>
+				</ul>
+			</div>
+
+			<div class="image">
+				<!-- Optional: plot/figure screenshot -->
+				<img src="images/tinyml_windows.jpg" alt="Windowing / preprocessing" />
+			</div>
+		</section>
+
+		<!-- Models & Optimization -->
+		<section class="spotlight style1 orient-right content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Models Evaluated & Optimization</h2>
+				<p>
+					Tested multiple time-series architectures and selected models based on deployment feasibility
+					(memory footprint and supported ops) in addition to accuracy.
+				</p>
+
+				<ul>
+					<li><strong>Architectures:</strong> CNN, Hybrid CNN-LSTM, DeepConvLSTM</li>
+					<li><strong>Compression:</strong> post-training <strong>int8 quantization</strong> (TFLite)</li>
+					<li><strong>Embedded constraint:</strong> avoid unsupported ops and reduce runtime overhead</li>
+				</ul>
+
+				<div class="box">
+					<strong>Result highlight:</strong> best model reached <strong>~79.3% test accuracy</strong> on the
+					basketball case study while remaining edge-deployable.
+				</div>
+			</div>
+
+			<div class="image">
+				<!-- Optional: confusion matrix or model comparison figure -->
+				<img src="images/tinyml_results.jpg" alt="Model comparison results" />
+			</div>
+		</section>
+
+		<!-- What I Learned -->
+		<section class="wrapper style1 align-center">
+			<div class="inner">
+				<h2>What This Demonstrates</h2>
+
+				<div class="items style1 medium onscroll-fade-in">
+					<section>
+						<h3>Embedded AI</h3>
+						<p>Deploying ML under RAM/Flash limits, balancing accuracy vs. footprint vs. inference cost.</p>
+					</section>
+					<section>
+						<h3>Real-Time Thinking</h3>
+						<p>Designing windowed inference pipelines and tuning for responsiveness on-device.</p>
+					</section>
+					<section>
+						<h3>Optimization</h3>
+						<p>TFLite conversion + quantization workflows to reduce model size for edge deployment.</p>
+					</section>
+				</div>
+
+				<ul class="actions stacked">
+					<li><a href="https://sajukhakurel074.github.io/" class="button">Back to Home</a></li>
+				</ul>
+			</div>
+		</section>
+
+	</div>
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/jquery.scrollex.min.js"></script>
+	<script src="assets/js/jquery.scrolly.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
