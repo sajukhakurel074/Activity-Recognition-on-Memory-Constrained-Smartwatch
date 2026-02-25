@@ -8601,3 +8601,86 @@ input, select, textarea {
 			#wrapper.divided > .invert:first-child {
 				box-shadow: none !important;
 			}
+
+			
+/* ===== My New Section (custom) ===== */
+#my-new-section .inner {
+  max-width: 70rem;
+  margin: 0 auto;
+}
+
+.new-section-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 2rem;
+}
+
+.new-card {
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: left;
+}
+
+@media screen and (max-width: 980px) {
+  .new-section-grid {
+    grid-template-columns: 1fr;
+  }
+}			
+
+/* ===== Architecture images: scroll starts from LEFT (no cropping) ===== */
+
+/* .arch-section .image.arch {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  width: 100%;
+  max-width: 100%;
+
+  display: block;       
+  text-align: left;
+}
+
+.arch-section .image.arch img {
+  width: auto;           
+  max-width: none;       
+  height: auto;
+  display: block;
+}
+
+.arch-section {
+  background: #f8f9fb;  
+}
+
+.arch-section h3 {
+  margin-bottom: 1rem;
+} */
+
+/* ===== Fit architecture fully inside page (no scroll) ===== */
+
+.arch-section .image.arch {
+  overflow: visible;        /* remove scroll */
+  width: 100%;
+  text-align: center;
+}
+
+.arch-section .image.arch img {
+  width: 100%;              /* scale to container width */
+  max-width: 100%;
+  height: auto;             /* keep aspect ratio */
+  display: block;
+}
+
+/* ===== Remove gray bars behind banner/spotlight images ===== */
+.banner .image,
+.spotlight .image {
+  background: #fff !important; /* was gray in template */
+}
+
+/* If the template uses an overlay pseudo-element */
+.banner .image:before,
+.spotlight .image:before {
+  background: transparent !important;
+}

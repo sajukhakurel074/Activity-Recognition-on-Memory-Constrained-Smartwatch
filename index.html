@@ -20,16 +20,21 @@
 		<section
 			class="banner style1 orient-left content-align-left image-position-right fullscreen onload-image-fade-in onload-content-fade-right">
 			<div class="content">
-				<h1>Embedded TinyML on 256KB RAM Smartwatch</h1>
+				<h1>Embedded TinyML on a 256KB RAM Smartwatch</h1>
 				<p>
-					Real-time <strong>Human Activity Recognition (HAR)</strong> deployed on the
-					<strong>Bangle.js 2</strong> smartwatch under strict memory constraints (<strong>256KB
-						RAM</strong>).
-					I implemented an end-to-end TinyML pipeline for
-					<strong>basketball activity recognition (HANG Time-HAR)</strong> using wrist accelerometer data,
-					and optimized models for edge inference using <strong>TensorFlow Lite</strong>.
-				</p>
+					This project implements <strong>real-time Human Activity Recognition (HAR)</strong> for
+					<strong>basketball movements</strong> on the <strong>Bangle.js 2</strong> smartwatch under severe
+					on-device limits
+					(<strong>256KB RAM</strong>, <strong>1024KB Flash</strong>). The goal was to run inference locally
+					(no cloud),
+					with a pipeline designed for <strong>low-latency</strong>, <strong>small memory footprint</strong>,
+					and <strong>edge deployment</strong>. <br><br>
 
+					A key constraint: development and testing were performed primarily in the
+					<strong>Espruino Web IDE emulator</strong>, which required adapting the deployment workflow
+					(including converting trained models into a <strong>JSON-compatible</strong> format for emulator
+					execution).
+				</p>
 				<ul class="actions stacked">
 
 					<li>
@@ -48,112 +53,310 @@
 				</ul>
 			</div>
 
-			<div class="image">
-				<!-- Replace with your own cover image (watch / accelerometer / TinyML visual) -->
-				<img src="images/tinyml_watch_cover.jpg" alt="Embedded TinyML smartwatch cover" />
+			<div class="image fit-cover">
+				<img src="images/model_performance_comparison (1).png" style="object-fit:contain" alt="" />
 			</div>
 		</section>
 
-		<!-- Project Snapshot -->
+		<!-- Project Summary -->
 		<section class="spotlight style1 orient-right content-align-left image-position-center onscroll-image-fade-in"
 			id="first">
 			<div class="content">
-				<h2>Project Snapshot</h2>
+				<h2>Project Summary (Case Study 1 — Basketball HAR)</h2>
+
 				<p>
-					The goal was to run deep-learning-based activity recognition locally on a smartwatch without cloud
-					dependency. This required designing models and preprocessing that fit within tight RAM/Flash budgets
-					while keeping inference responsive for real-time use.
+					Using the <strong>HANG Time-HAR</strong> basketball dataset, the task is to classify
+					<strong>19 basketball-related activities</strong> from wrist-worn <strong>3-axis
+						accelerometer</strong>
+					signals.
+					The Bangle.js 2 records accelerometer data at <strong>50 Hz</strong> (±8g). I built the full
+					pipeline:
+					preprocessing → training multiple neural networks → model selection → compression/quantization →
+					emulator-based deployment and evaluation.
 				</p>
 
 				<ul>
-					<li><strong>Device:</strong> Bangle.js 2 (memory-constrained wearable)</li>
-					<li><strong>Sensing:</strong> 3-axis wrist accelerometer (time-series)</li>
-					<li><strong>Task:</strong> Basketball activity classification (multi-class)</li>
-					<li><strong>Deployment:</strong> TensorFlow Lite + post-training quantization</li>
+					<li><strong>Device:</strong> Bangle.js 2 (256KB RAM, 1024KB Flash)</li>
+					<li><strong>Signal:</strong> 3-axis accelerometer (wrist), time-series HAR</li>
+					<li><strong>Task:</strong> 19-class basketball activity classification</li>
+					<li><strong>Models:</strong> LSTM, CNN, Hybrid CNN–LSTM, DeepConvLSTM</li>
+					<li><strong>Edge focus:</strong> TensorFlow Lite conversion + int8 quantization</li>
+					<li><strong>Supervisor:</strong> Prof. Kristof Van Laerhoven (University of Siegen)</li>
 				</ul>
 
 				<div class="box">
-					<strong>Focus:</strong> Embedded AI trade-offs — accuracy vs. memory footprint vs. latency
+					<strong>Main engineering challenge:</strong>
+					balancing <em>accuracy</em> vs <em>memory footprint</em> vs <em>inference latency</em> for a
+					watch-class device.
 				</div>
 			</div>
 
 			<div class="image">
-				<!-- Optional: dataset/experiment illustration -->
-				<img src="images/tinyml_pipeline.jpg" alt="TinyML pipeline illustration" />
+				<img src="images/raw_data_image.png" style="object-fit:contain;" alt="" />
 			</div>
 		</section>
 
-		<!-- Embedded Pipeline -->
+		<!-- Preprocessing -->
 		<section class="spotlight style1 orient-left content-align-left image-position-center onscroll-image-fade-in">
 			<div class="content">
-				<h2>Edge Pipeline (Memory-Aware)</h2>
+				<h2>Step 1 — Data Preprocessing (Memory-Aware)</h2>
+
 				<p>
-					I built a memory-efficient pipeline tailored for microcontroller-class devices: cleaning raw sensor
-					streams, generating compact fixed-length windows, and ensuring features and labels stay consistent
-					after resampling.
+					The raw accelerometer streams (CSV per player) were cleaned, downsampled, and segmented into compact
+					fixed-length windows so the model input stays small and consistent during training and on-device
+					inference.
 				</p>
 
 				<ul>
-					<li><strong>Windowing:</strong> fixed 2-second windows with overlap for real-time responsiveness
+					<li><strong>Cleaning:</strong> remove missing rows; filter extreme samples outside sensor range
+						(|acc| &gt; 8g)</li>
+					<li><strong>Downsampling:</strong> 50 Hz → <strong>10 Hz</strong> (keep every 5th sample) to reduce
+						compute + memory</li>
+					<li><strong>Windowing:</strong> <strong>2-second</strong> sliding windows (20 samples at 10 Hz) with
+						<strong>50% overlap</strong>
 					</li>
-					<li><strong>Downsampling:</strong> reduced sample rate to lower compute + memory cost</li>
-					<li><strong>Normalization:</strong> scaled inputs for stable training and inference</li>
-					<li><strong>Class balancing:</strong> capped sequences per class to control dataset size</li>
-				</ul>
-			</div>
-
-			<div class="image">
-				<!-- Optional: plot/figure screenshot -->
-				<img src="images/tinyml_windows.jpg" alt="Windowing / preprocessing" />
-			</div>
-		</section>
-
-		<!-- Models & Optimization -->
-		<section class="spotlight style1 orient-right content-align-left image-position-center onscroll-image-fade-in">
-			<div class="content">
-				<h2>Models Evaluated & Optimization</h2>
-				<p>
-					Tested multiple time-series architectures and selected models based on deployment feasibility
-					(memory footprint and supported ops) in addition to accuracy.
-				</p>
-
-				<ul>
-					<li><strong>Architectures:</strong> CNN, Hybrid CNN-LSTM, DeepConvLSTM</li>
-					<li><strong>Compression:</strong> post-training <strong>int8 quantization</strong> (TFLite)</li>
-					<li><strong>Embedded constraint:</strong> avoid unsupported ops and reduce runtime overhead</li>
+					<li><strong>Labeling:</strong> window label = predominant activity inside the window</li>
+					<li><strong>Balancing:</strong> cap to <strong>max 5000 windows/class</strong> (random sampling) to
+						control dataset size</li>
+					<li><strong>Split:</strong> 60% train / 20% val / 20% test; normalize with MinMax scaling</li>
 				</ul>
 
 				<div class="box">
-					<strong>Result highlight:</strong> best model reached <strong>~79.3% test accuracy</strong> on the
-					basketball case study while remaining edge-deployable.
+					<strong>Why this matters:</strong> fixed windows + downsampling make inference predictable and
+					feasible
+					under tight RAM limits.
 				</div>
 			</div>
 
 			<div class="image">
-				<!-- Optional: confusion matrix or model comparison figure -->
-				<img src="images/tinyml_results.jpg" alt="Model comparison results" />
+				<img src="images/raw_data_distribution.png" style="object-fit:contain"
+					alt="Preprocessing: windowing and downsampling" />
 			</div>
 		</section>
 
-		<!-- What I Learned -->
+		<!-- Models intro -->
+		<section class="spotlight style1 orient-right content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Step 2 — Models Evaluated</h2>
+
+				<p>
+					I evaluated multiple time-series neural network architectures and selected candidates based on
+					<strong>deployment feasibility</strong> (model size + supported ops) in addition to accuracy.
+					The final comparison was driven by edge constraints, not only leaderboard accuracy.
+				</p>
+
+				<ul>
+					<li><strong>LSTM:</strong> temporal modeling baseline</li>
+					<li><strong>CNN:</strong> lightweight feature extractor; best fit for strict constraints</li>
+					<li><strong>Hybrid CNN–LSTM:</strong> combines local feature extraction + temporal modeling</li>
+					<li><strong>DeepConvLSTM:</strong> highest accuracy, highest complexity</li>
+				</ul>
+
+				<div class="box">
+					<strong>Best test accuracy (Keras):</strong> DeepConvLSTM ≈ <strong>79.33%</strong> on basketball
+					HAR.
+				</div>
+			</div>
+		</section>
+
+		<!-- ===================== -->
+		<!-- Model 0: LSTM (NEW)    -->
+		<!-- ===================== -->
+		<section class="spotlight style1 orient-left content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Model 0 — LSTM (Sequence Baseline)</h2>
+
+				<p>
+					The LSTM baseline models temporal dependencies directly from the accelerometer sequence.
+					It is a useful reference point for comparing against convolution-based approaches,
+					especially under edge deployment constraints.
+				</p>
+
+				<ul>
+					<li><strong>Strength:</strong> learns time dependencies directly from sequences</li>
+					<li><strong>Limitation:</strong> recurrent ops can be harder to deploy efficiently on constrained
+						runtimes</li>
+				</ul>
+			</div>
+
+
+		</section>
+
+		<!-- LSTM Architecture (Full Width) -->
+		<section class="wrapper style1 align-center arch-section">
+			<div class="inner">
+				<h3>LSTM Architecture</h3>
+				<span class="image arch">
+					<img src="images/LSTM_Model_Architecture.drawio.png" style="object-fit:contain"
+						alt="LSTM model architecture" />
+				</span>
+			</div>
+		</section>
+
+		<!-- ===================== -->
+		<!-- Model A: CNN           -->
+		<!-- ===================== -->
+		<section class="spotlight style1 orient-left content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Model A — CNN (Edge-Friendly Baseline)</h2>
+
+				<p>
+					The CNN uses stacked <strong>Conv1D</strong> blocks to capture local motion patterns (peaks, rhythm,
+					short bursts), followed by compact dense layers for classification.
+					This architecture is typically more deployment-friendly than recurrent models on constrained
+					hardware.
+				</p>
+
+				<ul>
+					<li><strong>Strength:</strong> efficient inference and smaller footprint</li>
+					<li><strong>Test accuracy (Keras):</strong> ≈ 75.68%</li>
+					<li><strong>Quantized TFLite size:</strong> ~17,944 bytes (smallest among tested models)</li>
+				</ul>
+			</div>
+		</section>
+
+		<!-- CNN Architecture (Full Width) -->
+		<section class="wrapper style1 align-center arch-section">
+			<div class="inner">
+				<h3>CNN Architecture</h3>
+				<span class="image arch">
+					<img src="images/CNN_Model_Architecture.drawio.png" style="object-fit:contain"
+						alt="CNN architecture" />
+				</span>
+			</div>
+		</section>
+
+		<!-- ===================== -->
+		<!-- Model B: Hybrid        -->
+		<!-- ===================== -->
+		<section class="spotlight style1 orient-right content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Model B — Hybrid CNN–LSTM</h2>
+
+				<p>
+					The Hybrid model first extracts short-term features with convolution layers and then uses LSTM
+					layers
+					to model temporal dependencies. It performed competitively, but recurrent layers complicate
+					deployment.
+				</p>
+
+				<ul>
+					<li><strong>Test accuracy (Keras):</strong> ≈ 76.58%</li>
+					<li><strong>TFLite size:</strong> ~39,840 bytes</li>
+					<li><strong>Note:</strong> LSTM-based ops required extra conversion handling in the edge toolchain
+					</li>
+				</ul>
+			</div>
+		</section>
+
+		<!-- Hybrid Architecture (Full Width) -->
+		<section class="wrapper style1 align-center arch-section">
+			<div class="inner">
+				<h3>Hybrid CNN–LSTM Architecture</h3>
+				<span class="image arch">
+					<img src="images/Hybrid_model_Architecture.drawio.png" style="object-fit:contain"
+						alt="Hybrid CNN-LSTM architecture" />
+				</span>
+			</div>
+		</section>
+
+		<!-- ===================== -->
+		<!-- Model C: DeepConvLSTM  -->
+		<!-- ===================== -->
+		<section class="spotlight style1 orient-left content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Model C — DeepConvLSTM (Best Accuracy)</h2>
+
+				<p>
+					DeepConvLSTM combines deeper convolution blocks for robust feature extraction with LSTM layers for
+					temporal modeling. It achieved the best basketball HAR accuracy, but comes with higher parameter
+					count
+					and a heavier deployment footprint.
+				</p>
+
+				<ul>
+					<li><strong>Best test accuracy (Keras):</strong> ≈ <strong>79.33%</strong></li>
+					<li><strong>TFLite size:</strong> ~101,088 bytes</li>
+					<li><strong>TFLite test accuracy (500 samples):</strong> ≈ 68.20% (conversion + runtime constraints
+						matter)</li>
+				</ul>
+
+				<div class="box">
+					<strong>Takeaway:</strong> the “best” model depends on whether you optimize for accuracy only,
+					or for <em>real deployability</em> on the target runtime.
+				</div>
+			</div>
+		</section>
+
+		<!-- DeepConvLSTM Architecture (Full Width) -->
+		<section class="wrapper style1 align-center arch-section">
+			<div class="inner">
+				<h3>DeepConvLSTM Architecture</h3>
+				<span class="image arch">
+					<img src="images/DeepConvLSTM.drawio.png" style="object-fit:contain"
+						alt="DeepConvLSTM architecture" />
+				</span>
+			</div>
+		</section>
+
+		<!-- Deployment -->
+		<section class="spotlight style1 orient-right content-align-left image-position-center onscroll-image-fade-in">
+			<div class="content">
+				<h2>Step 3 — Deployment on the Watch (and Emulator Reality)</h2>
+
+				<p>
+					To make the models runnable under smartwatch constraints, I applied <strong>post-training int8
+						quantization</strong>
+					with TensorFlow Lite. However, during development I relied on the <strong>Espruino Web IDE
+						emulator</strong>,
+					which does not directly execute standard TFLite binaries. To test end-to-end behavior in the
+					emulator,
+					the trained models were adapted into a <strong>JSON-based representation</strong> compatible with
+					the JavaScript runtime.
+				</p>
+
+				<ul>
+					<li><strong>Compression:</strong> int8 quantization to reduce model size and improve speed</li>
+					<li><strong>Compatibility issue:</strong> LSTM-based models require fallback ops (SELECT_TF_OPS),
+						increasing complexity</li>
+					<li><strong>Emulator constraint:</strong> models executed via JSON conversion + simulated sensor
+						values</li>
+					<li><strong>Next step:</strong> validate on real Bangle.js 2 hardware for true latency + RAM
+						behavior</li>
+				</ul>
+			</div>
+
+			<div class="image">
+				<img src="images/image.png" style="object-fit:contain" alt="Bangle.js 2 emulator outputs" />
+			</div>
+		</section>
+
+		<!-- Conclusion + References -->
 		<section class="wrapper style1 align-center">
 			<div class="inner">
-				<h2>What This Demonstrates</h2>
+				<h2>Conclusion</h2>
 
-				<div class="items style1 medium onscroll-fade-in">
-					<section>
-						<h3>Embedded AI</h3>
-						<p>Deploying ML under RAM/Flash limits, balancing accuracy vs. footprint vs. inference cost.</p>
-					</section>
-					<section>
-						<h3>Real-Time Thinking</h3>
-						<p>Designing windowed inference pipelines and tuning for responsiveness on-device.</p>
-					</section>
-					<section>
-						<h3>Optimization</h3>
-						<p>TFLite conversion + quantization workflows to reduce model size for edge deployment.</p>
-					</section>
-				</div>
+				<p>
+					This work demonstrates an end-to-end TinyML workflow for basketball activity recognition under
+					strict memory limits.
+					The main result is not only the accuracy (DeepConvLSTM ≈ 79.33% in Keras), but the engineering
+					trade-offs needed to
+					make models deployable: reducing sampling rate, fixed windowing, controlling dataset size, and
+					quantizing models.
+					Emulator-based testing enabled rapid iteration, but final validation on physical hardware is
+					essential for real-world
+					latency, memory, and sensor-noise robustness.
+				</p>
+
+				<hr />
+
+				<h3>References</h3>
+				<p style="text-align:left;">
+					<strong>Supervisor:</strong> Prof. Dr. Kristof Van Laerhoven (University of Siegen)<br />
+					<strong>Dataset:</strong> HANG Time-HAR (Basketball Activity Recognition)<br />
+					<strong>Project report:</strong> “Efficient Activity Recognition on Memory-Constrained Smart
+					Watches” (Case Study 1)
+				</p>
 
 				<ul class="actions stacked">
 					<li><a href="https://sajukhakurel074.github.io/" class="button">Back to Home</a></li>
